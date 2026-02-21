@@ -47,3 +47,23 @@ def vend_item(request: VendRequest, x_machine_id: str = Header(None)):
                 "message": "X-Machine-Id header is required."
             }
         )
+    
+    if request.item_id not in inventory:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error_code": "ITEM_NOT_FOUND",
+                "message": "Item does not exist."
+            }
+        )
+
+    item = inventory[request.item_id]
+
+    if item["quantity"] <= 0:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error_code": "OUT_OF_STOCK",
+                "message": "Item is out of stock."
+            }
+        )
