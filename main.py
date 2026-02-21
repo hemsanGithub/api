@@ -36,3 +36,14 @@ def get_inventory(x_machine_id: str = Header(None)):
             }
         )
     return list(inventory.values())
+
+@app.post("/vend")
+def vend_item(request: VendRequest, x_machine_id: str = Header(None)):
+    if not x_machine_id:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error_code": "MISSING_MACHINE_ID",
+                "message": "X-Machine-Id header is required."
+            }
+        )
