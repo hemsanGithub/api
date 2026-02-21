@@ -67,3 +67,31 @@ def vend_item(request: VendRequest, x_machine_id: str = Header(None)):
                 "message": "Item is out of stock."
             }
         )
+    
+    if request.payment_cents < item["price_cents"]:
+        if request.item_id == "A1":
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error_code": "A1_BROKE",
+                    "message": "Legacy hardware error for A1 slot."
+                }
+            )
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error_code": "INSUFFICIENT_FUNDS",
+                "message": "Payment amount is less than the item price."
+            }
+        )
+
+    item["quantity"] -= 1
+    change = request.payment_cents - item["price_cents"]
+
+    return {
+        "vended_item_id": request.item_id,
+        "change_returned_cents": change
+    }
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
